@@ -298,3 +298,143 @@ class Program
 ## Conclusion
 
 This advanced example demonstrates the power and flexibility of generic delegates in C#. By making our sorting algorithm and delegate definitions generic, we've created a highly reusable and type-safe solution that can work with any data type. This approach showcases how delegates can be used to create flexible, maintainable, and extensible code in C#.
+
+
+# Delegate Example: Flexible Number Filtering
+
+This example demonstrates how to use delegates to create a flexible number filtering function in C#. We'll start with specific functions for finding odd and even numbers, then refactor them into a single, more versatile function using delegates.
+
+## Initial Implementation
+
+First, let's look at the initial implementation with separate methods for finding odd and even numbers:
+
+```csharp
+public class NumberOperations
+{
+    public static List<int> FindOddNumbers(List<int> numbers)
+    {
+        List<int> result = new List<int>();
+        if (numbers is not null)
+        {
+            for (int i = 0; i < numbers.Count; i++)
+            {
+                if (numbers[i] % 2 == 1)
+                    result.Add(numbers[i]);
+            }
+        }
+        return result;
+    }
+
+    public static List<int> FindEvenNumbers(List<int> numbers)
+    {
+        List<int> result = new List<int>();
+        if (numbers is not null)
+        {
+            for (int i = 0; i < numbers.Count; i++)
+            {
+                if (numbers[i] % 2 == 0)
+                    result.Add(numbers[i]);
+            }
+        }
+        return result;
+    }
+}
+```
+
+Usage:
+```csharp
+List<int> numbers = Enumerable.Range(1, 100).ToList(); // Generate numbers from 1 to 100
+
+List<int> oddNumbers = NumberOperations.FindOddNumbers(numbers);
+Console.WriteLine("Odd numbers:");
+foreach (int oddNumber in oddNumbers)
+    Console.Write($"{oddNumber} ");
+
+List<int> evenNumbers = NumberOperations.FindEvenNumbers(numbers);
+Console.WriteLine("\nEven numbers:");
+foreach (int evenNumber in evenNumbers)
+    Console.Write($"{evenNumber} ");
+```
+
+## Improved Implementation Using Delegates
+
+Now, let's refactor this code to use delegates, making it more flexible and eliminating code repetition.
+
+### Step 1: Define a Delegate
+
+First, we define a delegate for the condition function:
+
+```csharp
+public delegate bool ConditionFuncDelegate(int number);
+```
+
+### Step 2: Create Condition Functions
+
+Next, we create a class with static methods for different conditions:
+
+```csharp
+class ConditionFunctions
+{
+    public static bool CheckOdd(int number) { return number % 2 == 1; }
+    public static bool CheckEven(int number) { return number % 2 == 0; }
+}
+```
+
+### Step 3: Refactor the Filtering Method
+
+Now, we can refactor our `FindNumbers` method to use the delegate:
+
+```csharp
+public class NumberOperations
+{
+    public static List<int> FindNumbers(List<int> numbers, ConditionFuncDelegate condition)
+    {
+        List<int> result = new List<int>();
+        if (numbers is not null && condition is not null)
+        {
+            for (int i = 0; i < numbers.Count; i++)
+            {
+                if (condition(numbers[i]))
+                    result.Add(numbers[i]);
+            }
+        }
+        return result;
+    }
+}
+```
+
+### Usage
+
+Now we can use our improved filtering method like this:
+
+```csharp
+List<int> numbers = Enumerable.Range(1, 100).ToList(); // Generate numbers from 1 to 100
+
+List<int> oddNumbers = NumberOperations.FindNumbers(numbers, ConditionFunctions.CheckOdd);
+Console.WriteLine("Odd numbers:");
+foreach (int oddNumber in oddNumbers)
+    Console.Write($"{oddNumber} ");
+
+List<int> evenNumbers = NumberOperations.FindNumbers(numbers, ConditionFunctions.CheckEven);
+Console.WriteLine("\nEven numbers:");
+foreach (int evenNumber in evenNumbers)
+    Console.Write($"{evenNumber} ");
+
+// We can also use lambda expressions for more specific conditions
+List<int> multiplesOfThree = NumberOperations.FindNumbers(numbers, n => n % 3 == 0);
+Console.WriteLine("\nMultiples of three:");
+foreach (int number in multiplesOfThree)
+    Console.Write($"{number} ");
+```
+
+## Benefits of This Approach
+
+1. **Flexibility**: The filtering method is now more flexible, allowing the user to define any condition.
+2. **Reduced Code Duplication**: We no longer need separate methods for different conditions.
+3. **Extensibility**: New conditions can be easily added without modifying the filtering method.
+4. **Improved Readability**: The code is now more self-explanatory, with the condition logic separated from the filtering logic.
+5. **Inline Conditions**: We can use lambda expressions for one-off conditions without defining a new method.
+
+## Conclusion
+
+By using delegates, we've created a more versatile and maintainable number filtering method. This approach allows for easy customization of the filtering behavior without modifying the core logic, demonstrating the power and flexibility of delegates in C#. It also shows how we can simplify our codebase by replacing multiple specific methods with a single, more general method that can be customized at runtime.
